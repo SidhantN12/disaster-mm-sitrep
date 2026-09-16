@@ -1,0 +1,61 @@
+# CPU-friendly config: synthetic data only, tiny models, finishes all three
+# training stages in a few minutes on a laptop CPU. Used by tests and CI.
+seed: 42
+device: cpu
+
+data:
+  n_train: 64
+  n_val: 16
+  n_test: 16
+  grid_rows: 3
+  grid_cols: 3
+  max_reports: 6
+  max_report_tokens: 16
+  max_sitrep_tokens: 40
+  vocab_size: 400
+  prob_zero_reports: 0.2
+  prob_distractor: 0.25
+
+model:
+  image_variant: tiny
+  text_variant: tiny
+  img_embed_dim: 32
+  img_depth: 2
+  img_heads: 2
+  txt_embed_dim: 32
+  txt_depth: 2
+  txt_heads: 2
+  shared_dim: 24
+  private_dim: 12
+  decoder_base_channels: 16
+  modality_dropout_p: 0.3
+  d_model: 32
+  n_enc_layers: 2
+  n_dec_layers: 2
+  n_heads: 2
+  ffn_dim: 64
+
+loss1:
+  lambda_r: 1.0
+  lambda_c: 0.5
+  lambda_orth: 0.1
+  lambda_n: 0.5
+  tau: 0.07
+
+loss2:
+  lambda_d: 1.0
+  lambda_b: 1.0
+  lambda_g: 0.1
+
+train:
+  batch_size: 8
+  epochs_stage1: 3
+  epochs_stage2: 3
+  epochs_stage3: 2
+  lr_stage1: 0.001
+  lr_stage2: 0.001
+  lr_stage3: 0.0001
+  num_workers: 0
+
+checkpoints:
+  dir: runs/tiny
