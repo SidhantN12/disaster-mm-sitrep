@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "disaster-mm-sitrep"
+version = "0.1.0"
+description = "Multimodal (satellite imagery + geotagged text) disaster-response SITREP generation, damage classification and evidence attribution."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Sidhant Nair" },
+    { name = "Sahishnu Raut" },
+]
+dependencies = [
+    "torch>=2.1",
+    "timm>=0.9",
+    "transformers>=4.35",
+    "numpy>=1.24",
+    "scikit-learn>=1.3",
+    "sacrebleu>=2.3",
+    "pyyaml>=6.0",
+    "pillow>=10.0",
+    "matplotlib>=3.7",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "ruff>=0.4"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 160
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E741"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
