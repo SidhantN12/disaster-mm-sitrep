@@ -207,7 +207,7 @@ def _make_reports(
             reports.append(Report(text, dx, dy, dt, relevant=False))
             continue
 
-        s = structs[rng.integers(0, len(structs))]
+        s = candidates[rng.integers(0, len(candidates))]
         need_only = rng.random() < 0.35
         if need_only:
             need = rng.choice(NEEDS)
