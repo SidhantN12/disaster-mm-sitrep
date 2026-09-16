@@ -15,8 +15,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install CPU-only PyTorch
-        run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Install CPU-only PyTorch + torchvision
+        # Both must come from the same CPU-only index: a torchvision wheel
+        # resolved from a different index than torch (e.g. plain PyPI) can
+        # be built against a different libtorch ABI, which timm's import
+        # of torchvision.models.feature_extraction then fails on with
+        # "RuntimeError: operator torchvision::nms does not exist".
+        run: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
       - name: Install package + dev dependencies
         run: pip install -e ".[dev]"
