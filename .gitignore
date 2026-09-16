@@ -1,6 +1,6 @@
-runs/
-data/
-checkpoints/
+/runs/
+/data/
+/checkpoints/
 __pycache__/
 *.pyc
 .venv/
