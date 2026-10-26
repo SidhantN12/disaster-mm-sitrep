@@ -55,12 +55,19 @@ def main() -> int:
     args = ap.parse_args()
 
     run = Path(args.run)
-    for name in ['vocab.json', 'part1_stage1.pt', 'model_early.pt', 'model_late.pt', 'model_hybrid.pt']:
+    cfg = load_config(args.config)
+
+    # vocab.json only exists for the tiny text encoder. The bert variant builds
+    # its tokenizer from HuggingFace and writes no vocab file, so requiring one
+    # here wrongly rejects a perfectly good base-config run.
+    required = ['part1_stage1.pt', 'model_early.pt', 'model_late.pt', 'model_hybrid.pt']
+    if cfg['model']['text_variant'] == 'tiny':
+        required.append('vocab.json')
+    for name in required:
         if not (run / name).exists():
             print(f'missing {run / name} - did fusion_study.py finish?', file=sys.stderr)
             return 1
 
-    cfg = load_config(args.config)
     cfg['seed'] = args.seed
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('device:', device)
