@@ -89,6 +89,22 @@ class TextEncoder(nn.Module):
                 "report_pad_mask": report_pad_mask,
             }
 
+        if self.variant == "bert":
+            # Every report is flattened into ONE backbone sequence of length
+            # k * (Lr + 1) -- one [SEP] per report plus its tokens. BERT has a
+            # hard positional limit, so this is a real constraint on the config,
+            # not a soft one. Fail here with the arithmetic rather than letting
+            # it surface as an opaque tensor-expansion error inside the model.
+            max_pos = self.backbone.config.max_position_embeddings
+            need = k * (Lr + 1)
+            if need > max_pos:
+                raise ValueError(
+                    f"text encoder needs max_reports * (max_report_tokens + 1) = "
+                    f"{k} * {Lr + 1} = {need} positions, but {self.backbone.config._name_or_path} "
+                    f"supports {max_pos}. Set max_reports <= {max_pos // (Lr + 1)} "
+                    f"at max_report_tokens={Lr}, or lower max_report_tokens."
+                )
+
         sep_col = torch.full((B, k, 1), self.sep_id, dtype=torch.long, device=device)
         seq = torch.cat([sep_col, report_tokens], dim=-1)  # (B, k, Lr+1)
 

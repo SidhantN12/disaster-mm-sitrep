@@ -1,0 +1,398 @@
+{
+ "config": "configs/base.yaml",
+ "seed": 42,
+ "baselines": {
+  "train_damage_dist": {
+   "3": 18955,
+   "2": 1036,
+   "1": 9
+  },
+  "test_damage_dist": {
+   "3": 1909,
+   "2": 91
+  },
+  "train_bag_dist": {
+   "0": 6592,
+   "1": 13408
+  },
+  "test_bag_dist": {
+   "1": 1328,
+   "0": 672
+  },
+  "damage_majority_class": 3,
+  "damage_majority_weighted_f1": 0.9322796111537477,
+  "damage_majority_macro_f1": 0.4883601944231261,
+  "bag_always0_weighted_f1": 0.1690059880239521,
+  "bag_always0_macro_f1": 0.25149700598802394,
+  "bag_always1_weighted_f1": 0.5299230769230769,
+  "bag_always1_macro_f1": 0.39903846153846156
+ },
+ "stage1_history": [
+  3.6231067310333254,
+  1.593111478614807,
+  1.6183555376052856,
+  1.5809939987182617,
+  1.5845848285675048,
+  1.5786810159683227,
+  1.5766030403137208,
+  1.5778041570663452,
+  1.5764284620285034,
+  1.5759725812911987,
+  1.5754485363006592,
+  1.5844392032623291,
+  1.5735399656295777,
+  1.5747221508026124,
+  1.5734817922592164,
+  1.573612686729431,
+  1.573831712913513,
+  1.5737889596939088,
+  1.6376908977508544,
+  1.5824971551895142
+ ],
+ "part1_params": 222844768,
+ "early": {
+  "fusion": "early",
+  "fusion_params": 62684223,
+  "train_seconds": 2042.130120754242,
+  "stage2_history": [
+   0.775161204957962,
+   0.5916789251804352,
+   0.585020068025589,
+   0.6138012593507767,
+   0.5845456851005554,
+   0.5773331168651581,
+   0.578279076719284,
+   0.5756595099925995,
+   0.5769428258895875,
+   0.5823955882549285,
+   0.5752112349033356,
+   0.5794595809459686,
+   0.5753283247470856,
+   0.5749395214557648,
+   0.5891876538276672,
+   0.5756430180072785,
+   0.5750376994132995,
+   0.577549837732315,
+   0.5770073937416077,
+   0.5789367641925812
+  ],
+  "eval": {
+   "full": {
+    "ablate": "none",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.9670623439906051,
+    "bag_macro_f1": 0.9626453848804035,
+    "bleu": 66.15248497735993,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 1,
+    "n_samples": 2000,
+    "eval_seconds": 309.6024272441864,
+    "ms_per_tile": 154.8012136220932,
+    "sample_hyp": "tile assessment : 3 destroyed, 3 major damage, 4 minor damage, 7 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : none reported.",
+    "mean_image_mass": 0.9857101695878165,
+    "mean_report_mass": 0.010439431405670586
+   },
+   "image": {
+    "ablate": "image",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.9670623439906051,
+    "bag_macro_f1": 0.9626453848804035,
+    "bleu": 66.15248497735993,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 1,
+    "n_samples": 2000,
+    "eval_seconds": 306.019727230072,
+    "ms_per_tile": 153.009863615036,
+    "sample_hyp": "tile assessment : 3 destroyed, 3 major damage, 4 minor damage, 7 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : none reported.",
+    "mean_image_mass": 0.985710168641711,
+    "mean_report_mass": 0.010439431383496239
+   },
+   "text": {
+    "ablate": "text",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.1690059880239521,
+    "bag_macro_f1": 0.25149700598802394,
+    "bleu": 66.15248497735993,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 1,
+    "n_samples": 2000,
+    "eval_seconds": 281.3274140357971,
+    "ms_per_tile": 140.66370701789856,
+    "sample_hyp": "tile assessment : 3 destroyed, 3 major damage, 4 minor damage, 7 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : none reported.",
+    "mean_image_mass": 0.9961090087890625,
+    "mean_report_mass": 0.0
+   }
+  }
+ },
+ "late": {
+  "fusion": "late",
+  "fusion_params": 123907716,
+  "train_seconds": 2465.975213289261,
+  "stage2_history": [
+   1.0991414078712463,
+   0.89893185338974,
+   0.8308116729736328,
+   0.8225708947181701,
+   0.8225094061851501,
+   0.7918196056842804,
+   0.9390482044219971,
+   0.7998811504364014,
+   0.7683491351604461,
+   0.7351688453674317,
+   0.7202240484714508,
+   0.6774872970581055,
+   0.6376888123035431,
+   0.6193982089996338,
+   0.6141362600326538,
+   0.6041007410526276,
+   0.6006928245544434,
+   0.6116901034832001,
+   0.5939806215763092,
+   0.589441657114029
+  ],
+  "eval": {
+   "full": {
+    "ablate": "none",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.9670623439906051,
+    "bag_macro_f1": 0.9626453848804035,
+    "bleu": 66.15248497735993,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 1,
+    "n_samples": 2000,
+    "eval_seconds": 328.723680973053,
+    "ms_per_tile": 164.3618404865265,
+    "sample_hyp": "tile assessment : 3 destroyed, 3 major damage, 4 minor damage, 7 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : none reported.",
+    "mean_image_mass": 0.9961090087890625,
+    "mean_report_mass": 0.5213466182587638,
+    "gates": {
+     "damage": [
+      0.49881216883659363,
+      0.501187801361084
+     ],
+     "bag": [
+      0.5031648874282837,
+      0.4968350827693939
+     ],
+     "sitrep": [
+      0.9904250502586365,
+      0.009575005620718002
+     ]
+    }
+   },
+   "image": {
+    "ablate": "image",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.9670623439906051,
+    "bag_macro_f1": 0.9626453848804035,
+    "bleu": 66.15248497735993,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 1,
+    "n_samples": 2000,
+    "eval_seconds": 332.4343752861023,
+    "ms_per_tile": 166.21718764305115,
+    "sample_hyp": "tile assessment : 3 destroyed, 3 major damage, 4 minor damage, 7 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : none reported.",
+    "mean_image_mass": 0.9961090087890625,
+    "mean_report_mass": 0.5213466182587638,
+    "gates": {
+     "damage": [
+      0.49881216883659363,
+      0.501187801361084
+     ],
+     "bag": [
+      0.5031648874282837,
+      0.4968350827693939
+     ],
+     "sitrep": [
+      0.9904250502586365,
+      0.009575005620718002
+     ]
+    }
+   },
+   "text": {
+    "ablate": "text",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.1690059880239521,
+    "bag_macro_f1": 0.25149700598802394,
+    "bleu": 66.15248497735993,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 1,
+    "n_samples": 2000,
+    "eval_seconds": 327.49738216400146,
+    "ms_per_tile": 163.74869108200073,
+    "sample_hyp": "tile assessment : 3 destroyed, 3 major damage, 4 minor damage, 7 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : none reported.",
+    "mean_image_mass": 0.9961090087890625,
+    "mean_report_mass": 0.4999986593685453,
+    "gates": {
+     "damage": [
+      0.49881216883659363,
+      0.501187801361084
+     ],
+     "bag": [
+      0.5031648874282837,
+      0.4968350827693939
+     ],
+     "sitrep": [
+      0.9904250502586365,
+      0.009575005620718002
+     ]
+    }
+   }
+  }
+ },
+ "hybrid": {
+  "fusion": "hybrid",
+  "fusion_params": 84693823,
+  "train_seconds": 2236.4922046661377,
+  "stage2_history": [
+   0.7670968843460083,
+   0.5846109996795654,
+   0.5806977601051331,
+   0.5889744104862213,
+   0.575628199338913,
+   0.5746705067634582,
+   0.5732702407360077,
+   0.5727641928672791,
+   0.5875826872348785,
+   0.5727107501983643,
+   0.5717517923355102,
+   0.5710730840682984,
+   0.5745658668041229,
+   0.5719914839267731,
+   0.5817761468410492,
+   0.571108225107193,
+   0.5714294729709625,
+   0.5704865714073181,
+   0.5827329926013947,
+   0.5791364597797394
+  ],
+  "eval": {
+   "full": {
+    "ablate": "none",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.9670623439906051,
+    "bag_macro_f1": 0.9626453848804035,
+    "bleu": 60.08838272469626,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 2,
+    "n_samples": 2000,
+    "eval_seconds": 316.6265027523041,
+    "ms_per_tile": 158.31325137615204,
+    "sample_hyp": "tile assessment : 2 destroyed, 3 major damage, 4 minor damage, 8 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : food, medical supplies, shelter.",
+    "mean_image_mass": 0.8659937504738097,
+    "mean_report_mass": 0.12385790322035078
+   },
+   "image": {
+    "ablate": "image",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.9670623439906051,
+    "bag_macro_f1": 0.9626453848804035,
+    "bleu": 60.08838272469626,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 2,
+    "n_samples": 2000,
+    "eval_seconds": 315.6309700012207,
+    "ms_per_tile": 157.81548500061035,
+    "sample_hyp": "tile assessment : 2 destroyed, 3 major damage, 4 minor damage, 8 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : food, medical supplies, shelter.",
+    "mean_image_mass": 0.8659910966479589,
+    "mean_report_mass": 0.12386059169731443
+   },
+   "text": {
+    "ablate": "text",
+    "damage_weighted_f1": 0.9322796111537477,
+    "damage_macro_f1": 0.4883601944231261,
+    "damage_pred_dist": {
+     "3": 2000
+    },
+    "bag_weighted_f1": 0.1690059880239521,
+    "bag_macro_f1": 0.25149700598802394,
+    "bleu": 66.06852703307905,
+    "fact": {
+     "parseable_fraction": 0.0,
+     "count_accuracy": 0.0,
+     "bridge_accuracy": 0.0,
+     "level_accuracy": 0.0
+    },
+    "distinct_outputs": 1,
+    "n_samples": 2000,
+    "eval_seconds": 304.64194560050964,
+    "ms_per_tile": 152.32097280025482,
+    "sample_hyp": "tile assessment : 2 destroyed, 3 major damage, 4 minor damage, 8 undamaged structures. bridge is intact. overall damage level : destroyed. reported needs : none reported.",
+    "mean_image_mass": 0.9884170530334352,
+    "mean_report_mass": 0.0
+   }
+  }
+ }
+}

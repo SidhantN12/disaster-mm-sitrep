@@ -10,7 +10,11 @@ data:
   n_test: 2000
   grid_rows: 4
   grid_cols: 4
-  max_reports: 32
+  # The BERT text encoder flattens all reports into ONE sequence of
+  # max_reports * (max_report_tokens + 1) positions, capped at 512 by
+  # bert-base. 7 * 65 = 455 fits; 8 * 65 = 520 does not. The data averages
+  # 2.36 reports per tile, so 7 is ample coverage.
+  max_reports: 7
   max_report_tokens: 64
   max_sitrep_tokens: 96
   vocab_size: 30000
