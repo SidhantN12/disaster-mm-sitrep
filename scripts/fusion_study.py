@@ -45,7 +45,7 @@ def n_params(module) -> int:
 
 
 def train_stage1(cfg, part1, train_ds, tokenizer, device):
-    loader = DataLoader(train_ds, batch_size=cfg["train"]["batch_size"], shuffle=True, collate_fn=collate_fn)
+    loader = DataLoader(train_ds, batch_size=cfg["train"]["batch_size"], shuffle=True, collate_fn=collate_fn, num_workers=8, pin_memory=True, persistent_workers=True)
     opt = torch.optim.Adam(part1.parameters(), lr=cfg["train"]["lr_stage1"])
     l1 = cfg.get("loss1", {})
     part1.train()
@@ -73,7 +73,7 @@ def train_stage1(cfg, part1, train_ds, tokenizer, device):
 
 def train_stage2(cfg, part1, model, train_ds, tokenizer, device, tag):
     """Part 1 frozen; only the fusion model trains. Identical for all variants."""
-    loader = DataLoader(train_ds, batch_size=cfg["train"]["batch_size"], shuffle=True, collate_fn=collate_fn)
+    loader = DataLoader(train_ds, batch_size=cfg["train"]["batch_size"], shuffle=True, collate_fn=collate_fn, num_workers=8, pin_memory=True, persistent_workers=True)
     opt = torch.optim.Adam(model.parameters(), lr=cfg["train"]["lr_stage2"])
     l2 = cfg.get("loss2", {})
     for p in part1.parameters():
