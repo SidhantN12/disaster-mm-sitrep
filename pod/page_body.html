@@ -1,0 +1,169 @@
+
+<header class="mast">
+  <div class="wrap">
+    <div class="mastgrid">
+      <div>
+        <div class="eyebrow">Multimodal AI &middot; mini project &middot; fusion study</div>
+        <h1>Reading a disaster from pictures and words</h1>
+        <p class="thesis">A tile of satellite imagery and the field reports near it, turned into a situation report. Three fusion mechanisms, trained identically, compared on the same 16 tiles. Every output on this page came from the trained models, not from a mock-up.</p>
+      </div>
+      <div class="whoami">
+        <b>Sidhant Nair</b> &middot; 23070126127<br>
+        <b>Sahishnu Raut</b> &middot; 23070126118<br>
+        seed 42 &middot; 12 stage-2 epochs
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap sec">
+    <div class="sec-head"><span class="sec-n">01</span><h2>Pick a tile</h2></div>
+    <p class="sec-sub">The 16 tiles of the held-out test split. Tiles marked <span style="font-family:var(--f-data);color:var(--d2)">k0</span> arrived with no field reports at all &mdash; seven of sixteen, which is the case the architecture has to survive.</p>
+    <div class="strip" id="strip" role="group" aria-label="Test tiles"></div>
+
+    <div class="inspect">
+      <div>
+        <div class="imgcard">
+          <div class="imgtabs" role="group" aria-label="Image layer">
+            <button type="button" data-layer="pre" aria-pressed="false">Before</button>
+            <button type="button" data-layer="post" aria-pressed="true">After</button>
+          </div>
+          <div class="stage">
+            <img id="stageImg" alt="Satellite chip for the selected tile">
+            <div id="attGrid" aria-hidden="true"></div>
+          </div>
+          <div class="stagefoot">
+            <span>256&times;256 chip &middot; <b id="footTile">tile 0</b></span>
+            <span id="footAtt">&nbsp;</span>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <div class="label" style="margin-bottom:7px">Ground truth</div>
+          <div class="truthrow">
+            <span class="pill" id="truthPill">&mdash;</span>
+            <span style="font-family:var(--f-data);font-size:12px;color:var(--faint)" id="truthBag">&mdash;</span>
+          </div>
+          <div class="sitrep" id="truthSitrep" style="font-size:12px;color:var(--dim)"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom:8px">Field reports attached to this tile <span id="repCount" style="color:var(--dim)"></span></div>
+        <div id="reports" class="reports"></div>
+
+        <div style="margin-top:20px">
+          <div class="label" style="margin-bottom:6px">Cross-attention &mdash; click a word to see where it looked</div>
+          <p style="font-size:13.5px;color:var(--dim);margin-bottom:4px">These are the words the cross-attention model wrote. Selecting one shades the image patches it leaned on and splits its attention between the picture and the reports.</p>
+          <div class="words" id="words" role="group" aria-label="Generated words"></div>
+          <p class="spread" id="spread"></p>
+          <div class="massbar" id="massbar" aria-hidden="true"></div>
+          <div class="masskey">
+            <span><i style="background:var(--accent)"></i> image patches</span>
+            <span><i style="background:var(--ok)"></i> report tokens</span>
+            <span><i style="background:var(--sunk);border:1px solid var(--line)"></i> context</span>
+          </div>
+          <div class="callout" style="margin-top:14px;font-size:13.5px">
+            <b>Read this honestly.</b> The split between picture and reports is real and moves from word to word. The patch map underneath is not yet meaningful: at this training scale the model spreads attention almost evenly over all 256 patches, so the shading is a stretched view of a few per cent of variation. The wiring works and the masks are correct &mdash; the model has not learned <i>where</i> to look. Same story for the report weights on the left, which sit near 1/k.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap sec">
+    <div class="sec-head"><span class="sec-n">02</span><h2>What each fusion mechanism wrote</h2></div>
+    <p class="sec-sub">The same tile, through three architectures that differ only in where the two modalities meet. Numbers are marked against the ground-truth SITREP: <span style="color:var(--ok);font-weight:600">green</span> where the count is right, <span style="color:var(--bad);font-weight:600">red</span> where it is wrong.</p>
+    <div class="vgrid" id="variants"></div>
+    <div class="callout" id="tileNote"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap sec">
+    <div class="sec-head"><span class="sec-n">03</span><h2>Where the modalities meet</h2></div>
+    <p class="sec-sub">Everything before the highlighted block is shared and frozen across all three runs, so the fusion mechanism is the only variable in the comparison.</p>
+    <div class="agrid">
+      <div class="acard">
+        <div class="kind">feature-level</div>
+        <h3>Early fusion</h3>
+        <div class="flow"><b>image</b><s>&rarr;</s><b>ViT</b><s>&rarr;</s><b class="hot">concat + MLP</b><s>&rarr;</s><b>decoder</b></div>
+        <div class="flow"><b>reports</b><s>&rarr;</s><b>text enc.</b><s>&nearr;</s></div>
+        <p>Both vectors are glued together into one code at the input. Nothing downstream can tell the modalities apart, and no mechanism can weigh one report against another.</p>
+      </div>
+      <div class="acard">
+        <div class="kind">decision-level</div>
+        <h3>Late fusion</h3>
+        <div class="flow"><b>image</b><s>&rarr;</s><b>own encoder + decoder</b><s>&searr;</s></div>
+        <div class="flow" style="padding-left:22px"><b class="hot">gate</b><s>&rarr;</s><b>output</b></div>
+        <div class="flow"><b>reports</b><s>&rarr;</s><b>own encoder + decoder</b><s>&nearr;</s></div>
+        <p>Two separate networks that never exchange a single activation. One learned scalar decides how much of each to believe &mdash; and in training it never moved off 50/50.</p>
+      </div>
+      <div class="acard">
+        <div class="kind">cross-attention</div>
+        <h3>Hybrid fusion</h3>
+        <div class="flow"><b>patch tokens</b><s>&searr;</s></div>
+        <div class="flow" style="padding-left:22px"><b class="hot">co-attention</b><s>&rarr;</s><b>decoder</b></div>
+        <div class="flow"><b>report tokens</b><s>&nearr;</s></div>
+        <p>Report words query image regions and image regions query report words, at every layer. Each generated word then picks its own evidence &mdash; which is what section 01 is drawing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap sec">
+    <div class="sec-head"><span class="sec-n">04</span><h2>What the comparison found</h2></div>
+    <p class="sec-sub">Five seeds per configuration, 30 training runs in total. Report relevance &mdash; does this tile's bag of reports contain anything about this tile &mdash; is the one task that genuinely needs the text, so it is the task that separates the three.</p>
+
+    <div class="rgrid">
+      <div class="rcard">
+        <h3>Report relevance after 3 epochs</h3>
+        <div class="label">weighted F1 &middot; vertical rule is the no-learning baseline</div>
+        <div class="bars" id="bars3"></div>
+        <p class="note">Only cross-attention clears the baseline. The other two sit below a constant predictor.</p>
+      </div>
+      <div class="rcard">
+        <h3>Report relevance after 12 epochs</h3>
+        <div class="label">weighted F1 &middot; same baseline</div>
+        <div class="bars" id="bars12"></div>
+        <p class="note">Given four times the budget, all three learn it. Cross-attention's advantage is getting there first, not getting there alone.</p>
+      </div>
+      <div class="rcard">
+        <h3>Does it actually read the text?</h3>
+        <div class="label">F1 lost when every report is deleted</div>
+        <div class="bars" id="barsDrop"></div>
+        <p class="note">At the short budget, deleting the entire text modality changed early and late fusion's answer by exactly nothing. A model whose output is identical with and without an input is not using it.</p>
+      </div>
+      <div class="rcard">
+        <h3>Writing quality at 12 epochs</h3>
+        <div class="tblwrap">
+          <table class="tbl">
+            <thead><tr><th>Fusion</th><th style="text-align:right">BLEU</th><th style="text-align:right">Distinct / 16</th></tr></thead>
+            <tbody>
+              <tr><td>Early</td><td class="n">36.1</td><td class="n">2.0</td></tr>
+              <tr><td>Late</td><td class="n">38.0</td><td class="n">1.6</td></tr>
+              <tr><td><b>Hybrid</b></td><td class="n"><b>45.6</b></td><td class="n"><b>4.4</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Late fusion converges on emitting almost one sentence for every tile &mdash; the predictable result of averaging two probability distributions. This gap does not close with budget.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>The result that holds under every condition we tested:</b> damage classification scores 0.837 weighted F1 under all three mechanisms, at both budgets, on every seed &mdash; exactly the score of always guessing &ldquo;destroyed&rdquo;. 83% of tiles carry that label, because a tile inherits the worst damage among its ten structures. No fusion mechanism can rescue a target that is nearly constant; the label definition has to change.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot">
+      Outputs generated by the trained 12-epoch models on the seed-42 test split &middot; synthetic benchmark, not real imagery<br>
+      Code: github.com/SidhantN12/disaster-mm-sitrep &middot; fusion variants, study protocol and corrected metric in the <span style="font-family:var(--f-data)">fusion-comparison-study</span> branch
+    </p>
+  </div>
+</footer>
