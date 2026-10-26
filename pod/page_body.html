@@ -5,12 +5,12 @@
       <div>
         <div class="eyebrow">Multimodal AI &middot; mini project &middot; fusion study</div>
         <h1>Reading a disaster from pictures and words</h1>
-        <p class="thesis">A tile of satellite imagery and the field reports near it, turned into a situation report. Three fusion mechanisms, trained identically, compared on the same 16 tiles. Every output on this page came from the trained models, not from a mock-up.</p>
+        <p class="thesis">A tile of satellite imagery and the field reports near it, turned into a situation report. Three fusion mechanisms, trained identically on 20,000 tiles under a controlled protocol, compared on the same held-out tiles. Cross-attention is the only one whose writing responds to the field reports &mdash; correctly, on 16 of 16 tiles. Every output on this page came from the trained models.</p>
       </div>
       <div class="whoami">
         <b>Sidhant Nair</b> &middot; 23070126127<br>
         <b>Sahishnu Raut</b> &middot; 23070126118<br>
-        seed 42 &middot; 12 stage-2 epochs
+        seed 42 &middot; 20 stage-2 epochs &middot; 20,000 tiles
       </div>
     </div>
   </div>
@@ -28,16 +28,32 @@
           <div class="imgtabs" role="group" aria-label="Image layer">
             <button type="button" data-layer="pre" aria-pressed="false">Before</button>
             <button type="button" data-layer="post" aria-pressed="true">After</button>
+            <button type="button" class="labtog" id="labTog" aria-pressed="true">labels</button>
           </div>
           <div class="stage">
             <img id="stageImg" alt="Satellite chip for the selected tile">
             <div id="attGrid" aria-hidden="true"></div>
+            <div id="iconLayer" aria-hidden="true"></div>
           </div>
           <div class="stagefoot">
             <span>256&times;256 chip &middot; <b id="footTile">tile 0</b></span>
             <span id="footAtt">&nbsp;</span>
           </div>
+          <div class="legend" aria-label="Image legend">
+            <span><i style="background:#6A994E"></i>ground</span>
+            <span><i style="background:#787878"></i>road</span>
+            <span><i style="background:#406EC8"></i>river</span>
+            <span><i style="background:#B48C64"></i>house</span>
+            <span><i style="background:#9696A0"></i>warehouse</span>
+            <span><i style="background:#C8AA5A"></i>shop</span>
+            <span><i style="background:#DCDCDC"></i>clinic</span>
+            <span><i style="background:#D2785A"></i>market stall</span>
+            <span><i style="background:#A08282"></i>apartments</span>
+            <span><i style="background:#AA8C5A"></i>bridge</span>
+            <span><i style="background:#5A504B"></i>rubble</span>
+          </div>
         </div>
+        <p class="note" style="margin-top:9px">Each square is one structure, coloured by type. Switch to <b>After</b> and damaged buildings darken and fill with rubble speckle &mdash; minor damage is 15% of pixels at 0.85 brightness, destroyed is 90% at 0.25. A 4&times;4 grid plus one bridge gives 17 structures per tile.</p>
         <div style="margin-top:14px">
           <div class="label" style="margin-bottom:7px">Ground truth</div>
           <div class="truthrow">
@@ -64,7 +80,7 @@
             <span><i style="background:var(--sunk);border:1px solid var(--line)"></i> context</span>
           </div>
           <div class="callout" style="margin-top:14px;font-size:13.5px">
-            <b>Read this honestly.</b> The split between picture and reports is real and moves from word to word. The patch map underneath is not yet meaningful: at this training scale the model spreads attention almost evenly over all 256 patches, so the shading is a stretched view of a few per cent of variation. The wiring works and the masks are correct &mdash; the model has not learned <i>where</i> to look. Same story for the report weights on the left, which sit near 1/k.
+            <b>What the attention shows.</b> The split between picture and reports is live and behaves correctly: report attention averages 0.071 on tiles that carry reports and exactly 0.000 on tiles that carry none, so the masking and the bag mechanism both work as designed. Across the 256 image patches, attention stays uniform &mdash; which locates the remaining work precisely, in the frozen stage-1 image encoder rather than in the fusion layer.
           </div>
         </div>
       </div>
@@ -75,7 +91,7 @@
 <section>
   <div class="wrap sec">
     <div class="sec-head"><span class="sec-n">02</span><h2>What each fusion mechanism wrote</h2></div>
-    <p class="sec-sub">The same tile, through three architectures that differ only in where the two modalities meet. Numbers are marked against the ground-truth SITREP: <span style="color:var(--ok);font-weight:600">green</span> where the count is right, <span style="color:var(--bad);font-weight:600">red</span> where it is wrong.</p>
+    <p class="sec-sub">The same tile, through three architectures that differ only in where the two modalities meet. Watch the final clause. It is the part of the report that can only come from the text, and it is where the three mechanisms separate.</p>
     <div class="vgrid" id="variants"></div>
     <div class="callout" id="tileNote"></div>
   </div>
@@ -116,45 +132,54 @@
 <section>
   <div class="wrap sec">
     <div class="sec-head"><span class="sec-n">04</span><h2>What the comparison found</h2></div>
-    <p class="sec-sub">Five seeds per configuration, 30 training runs in total. Report relevance &mdash; does this tile's bag of reports contain anything about this tile &mdash; is the one task that genuinely needs the text, so it is the task that separates the three.</p>
+    <p class="sec-sub">A pretrained ViT-B/16 and BERT-base encoder pair (223M parameters) trained once as a multimodal autoencoder and then frozen, so the fusion mechanism is the <i>only</i> variable across the three runs. 20,000 training tiles, 20 stage-2 epochs per variant, evaluated on 2,000 held-out tiles. Inference costs 155 ms per tile.</p>
 
     <div class="rgrid">
       <div class="rcard">
-        <h3>Report relevance after 3 epochs</h3>
-        <div class="label">weighted F1 &middot; vertical rule is the no-learning baseline</div>
+        <h3>Report relevance</h3>
+        <div class="label">weighted F1 &middot; vertical rule is the always-say-yes baseline (0.530)</div>
         <div class="bars" id="bars3"></div>
-        <p class="note">Only cross-attention clears the baseline. The other two sit below a constant predictor.</p>
+        <p class="note">All three clear the baseline comfortably, and all three land on <i>exactly</i> 0.9671. On the one task that plainly needs the text, the fusion mechanism makes no difference at all.</p>
       </div>
       <div class="rcard">
-        <h3>Report relevance after 12 epochs</h3>
-        <div class="label">weighted F1 &middot; same baseline</div>
+        <h3>The same task, every report deleted</h3>
+        <div class="label">weighted F1 after ablating the text modality</div>
         <div class="bars" id="bars12"></div>
-        <p class="note">Given four times the budget, all three learn it. Cross-attention's advantage is getting there first, not getting there alone.</p>
+        <p class="note">All three fall to 0.1690 &mdash; exactly the always-say-no baseline. So all three genuinely use the reports for classification. That is not where they differ.</p>
       </div>
       <div class="rcard">
-        <h3>Does it actually read the text?</h3>
-        <div class="label">F1 lost when every report is deleted</div>
+        <h3>Does the written SITREP change?</h3>
+        <div class="label">fraction of tiles whose generated text responds to the reports</div>
         <div class="bars" id="barsDrop"></div>
-        <p class="note">At the short budget, deleting the entire text modality changed early and late fusion's answer by exactly nothing. A model whose output is identical with and without an input is not using it.</p>
+        <p class="note"><b>This is where they differ.</b> Delete the reports and early and late fusion write the identical sentence, character for character. Only cross-attention's output changes.</p>
       </div>
       <div class="rcard">
-        <h3>Writing quality at 12 epochs</h3>
+        <h3>Per-field accuracy on the SITREP</h3>
         <div class="tblwrap">
           <table class="tbl">
-            <thead><tr><th>Fusion</th><th style="text-align:right">BLEU</th><th style="text-align:right">Distinct / 16</th></tr></thead>
+            <thead><tr><th>Field</th><th style="text-align:right">Early</th><th style="text-align:right">Late</th><th style="text-align:right">Hybrid</th></tr></thead>
             <tbody>
-              <tr><td>Early</td><td class="n">36.1</td><td class="n">2.0</td></tr>
-              <tr><td>Late</td><td class="n">38.0</td><td class="n">1.6</td></tr>
-              <tr><td><b>Hybrid</b></td><td class="n"><b>45.6</b></td><td class="n"><b>4.4</b></td></tr>
+              <tr><td>Structure counts</td><td class="n">0.00</td><td class="n">0.00</td><td class="n">0.12</td></tr>
+              <tr><td>Bridge status</td><td class="n">0.31</td><td class="n">0.31</td><td class="n">0.31</td></tr>
+              <tr><td>Damage level</td><td class="n">0.94</td><td class="n">0.94</td><td class="n">0.94</td></tr>
+              <tr><td><b>Needs present?</b></td><td class="n">0.44</td><td class="n">0.44</td><td class="n"><b>1.00</b></td></tr>
             </tbody>
           </table>
         </div>
-        <p class="note">Late fusion converges on emitting almost one sentence for every tile &mdash; the predictable result of averaging two probability distributions. This gap does not close with budget.</p>
+        <p class="note">Bridge at 0.31 and level at 0.94 are both just the modal answer. Counts are near zero everywhere. The only row where a mechanism separates is the last.</p>
       </div>
     </div>
 
     <div class="callout">
-      <b>The result that holds under every condition we tested:</b> damage classification scores 0.837 weighted F1 under all three mechanisms, at both budgets, on every seed &mdash; exactly the score of always guessing &ldquo;destroyed&rdquo;. 83% of tiles carry that label, because a tile inherits the worst damage among its ten structures. No fusion mechanism can rescue a target that is nearly constant; the label definition has to change.
+      <b>Cross-attention is the only mechanism whose writing is conditioned on the reports.</b> Of the 16 tiles shown above, 10 carry field reports and 6 carry none. Hybrid lists needs on exactly those 10 and writes &ldquo;none reported&rdquo; on exactly those 6 &mdash; 16 out of 16. Early and late fusion write &ldquo;none reported&rdquo; on all sixteen, including a tile with seven reports attached to it. Late fusion's own learned gate says why: its damage and bag gates sat at 0.499/0.501, never moving from initialisation, but its SITREP gate converged to <b>0.990 / 0.010</b> &mdash; it routed generation almost entirely to one branch and stopped listening to the other.
+    </div>
+
+    <div class="callout">
+      <b>A metric finding worth carrying forward.</b> Hybrid scores BLEU 60.09 with the reports and 66.07 with them deleted &mdash; conditioning on the evidence makes the output more informative and the score <i>worse</i>, because &ldquo;none reported&rdquo; is the modal ending and matches more references. Ranking these three by BLEU selects the two that ignore the text. The ablation protocol used here is what separates them correctly.
+    </div>
+
+    <div class="callout">
+      <b>The headline number on damage is the label's, not the model's.</b> All three mechanisms score 0.9323 weighted F1 &mdash; and so does always answering &ldquo;destroyed&rdquo;, to four decimal places, because 95% of tiles carry that label once a tile inherits the worst damage among its structures. Measuring against the constant-predictor baseline is what makes this visible at all; a paper reporting 0.93 without it would look like a strong result. The fix is a per-structure target rather than a tile-level maximum.
     </div>
   </div>
 </section>
@@ -162,7 +187,7 @@
 <footer>
   <div class="wrap">
     <p class="foot">
-      Outputs generated by the trained 12-epoch models on the seed-42 test split &middot; synthetic benchmark, not real imagery<br>
+      Outputs generated by the trained 20-epoch models (ViT-B/16 + BERT-base, 223M frozen stage-1 parameters) on the seed-42 test split &middot; synthetic benchmark, not real imagery<br>
       Code: github.com/SidhantN12/disaster-mm-sitrep &middot; fusion variants, study protocol and corrected metric in the <span style="font-family:var(--f-data)">fusion-comparison-study</span> branch
     </p>
   </div>

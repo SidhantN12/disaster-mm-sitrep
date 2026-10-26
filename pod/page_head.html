@@ -229,4 +229,26 @@ footer .wrap{padding-block:16px 22px}
   .mastgrid{grid-template-columns:1fr}
   .whoami{text-align:left}
 }
+
+.legend{
+  display:flex;flex-wrap:wrap;gap:4px 11px;
+  padding:9px 10px;border-top:1px solid var(--line);
+  font-family:var(--f-data);font-size:10.5px;color:var(--faint);
+}
+.legend span{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.legend i{
+  width:9px;height:9px;flex:none;border-radius:2px;
+  border:1px solid rgba(0,0,0,.18);
+}
+
+#iconLayer{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .16s}
+#iconLayer.on{opacity:1}
+#iconLayer>svg{width:100%;height:100%;display:block;overflow:visible}
+.ic-h{stroke:rgba(0,0,0,.65);stroke-width:5.5;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.ic{stroke:#fff;stroke-width:2.4;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.labtog{
+  margin-left:auto;padding:4px 9px;border:1px solid var(--line);background:var(--card);
+  border-radius:5px;font-family:var(--f-data);font-size:10.5px;color:var(--dim);cursor:pointer;
+}
+.labtog[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 </style>

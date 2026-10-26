@@ -4,7 +4,7 @@
   var TILES = DATA.tiles;
   var DN = DATA.meta.damage_names;
 
-  var state = { tile: 1, layer: 'post', word: 0 };
+  var state = { tile: 1, layer: 'post', word: 0, labels: true };
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -40,6 +40,47 @@
       tabs[i].setAttribute('aria-pressed', String(tabs[i].dataset.layer === state.layer));
     }
     renderAttention();
+    renderIcons();
+  }
+
+
+  /* ---------- structure icons (annotation overlay, not model input) ---------- */
+  var GLYPH = {
+    house:      'M18,52 L50,24 L82,52 M27,46 L27,80 L73,80 L73,46',
+    warehouse:  'M18,80 L18,44 L50,26 L82,44 L82,80 Z M36,80 L36,58 L64,58 L64,80',
+    shop:       'M24,44 L76,44 L76,80 L24,80 Z M20,44 Q33,28 46,44 Q59,28 72,44 L80,44',
+    clinic:     'M50,26 L50,74 M26,50 L74,50',
+    market:     'M50,30 L50,78 M22,48 Q50,18 78,48 Z',
+    apartments: 'M32,80 L32,22 L68,22 L68,80 M42,34 L42,42 M58,34 L58,42 M42,54 L42,62 M58,54 L58,62',
+    bridge:     'M16,64 Q50,30 84,64 M16,64 L16,76 M84,64 L84,76'
+  };
+
+  function renderIcons() {
+    var layer = $('iconLayer');
+    if (!layer) return;
+    var t = TILES[state.tile];
+    var st = (t && t.structures) || [];
+    if (!st.length) { layer.innerHTML = ''; return; }
+    var parts = ['<svg viewBox="0 0 100 100" preserveAspectRatio="none">'];
+    for (var i = 0; i < st.length; i++) {
+      var s = st[i];
+      var pad = 0.26;
+      var x = (s.x + s.w * pad) * 100;
+      var y = (s.y + s.h * pad) * 100;
+      var w = s.w * (1 - 2 * pad) * 100;
+      var h = s.h * (1 - 2 * pad) * 100;
+      var d = GLYPH[s.k];
+      if (!d) continue;
+      parts.push(
+        '<svg x="' + x.toFixed(2) + '" y="' + y.toFixed(2) +
+        '" width="' + w.toFixed(2) + '" height="' + h.toFixed(2) +
+        '" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">' +
+        '<path class="ic-h" d="' + d + '"/><path class="ic" d="' + d + '"/></svg>'
+      );
+    }
+    parts.push('</svg>');
+    layer.innerHTML = parts.join('');
+    layer.className = state.labels ? 'on' : '';
   }
 
   function renderAttention() {
@@ -218,7 +259,7 @@
       var agree = t.variants.early.damage === t.variants.hybrid.damage &&
         t.variants.late.damage === t.variants.hybrid.damage;
       note.innerHTML = agree
-        ? '<b>All three agree on the damage class here</b> &mdash; which they do on almost every tile, because 83% of tiles are labelled &ldquo;destroyed&rdquo; and all three learned to say so. The counts inside the sentence are where they come apart.'
+        ? '<b>All three agree on the damage class here</b> &mdash; as they do on every tile in the test set, because 95% carry the label &ldquo;destroyed&rdquo; and all three learned to answer it constantly. Look instead at the final clause: whether the model reports needs is where they come apart.'
         : '<b>The three disagree on this tile.</b> Compare which numbers each one got right, and remember all three read the identical frozen image and text features.';
     }
   }
@@ -243,26 +284,29 @@
   }
 
   function renderResults() {
+    // Report relevance. All three clear the always-say-yes baseline of 0.530
+    // by a wide margin, and all three land on exactly the same score.
     bars('bars3', [
-      { k: 'early', v: 0.41, hi: false },
-      { k: 'late', v: 0.44, hi: false },
-      { k: 'hybrid', v: 0.82, hi: true }
-    ], 0.47, 1.0);
+      { k: 'early', v: 0.97, hi: false },
+      { k: 'late', v: 0.97, hi: false },
+      { k: 'hybrid', v: 0.97, hi: true }
+    ], 0.530, 1.0);
 
+    // Same task with every report deleted. All three fall to 0.169, which is
+    // exactly the always-say-no baseline: without text they cannot do it.
     bars('bars12', [
-      { k: 'early', v: 0.82, hi: false },
-      { k: 'late', v: 0.91, hi: true },
-      { k: 'hybrid', v: 0.91, hi: true }
-    ], 0.47, 1.0);
+      { k: 'early', v: 0.17, hi: false },
+      { k: 'late', v: 0.17, hi: false },
+      { k: 'hybrid', v: 0.17, hi: true }
+    ], 0.530, 1.0);
 
+    // Does the GENERATED SITREP change when the reports are deleted?
+    // Only cross-attention's does.
     bars('barsDrop', [
-      { k: 'early 3ep', v: 0.00, hi: false },
-      { k: 'late 3ep', v: 0.00, hi: false },
-      { k: 'hybrid 3ep', v: 0.52, hi: true },
-      { k: 'early 12ep', v: 0.49, hi: false },
-      { k: 'late 12ep', v: 0.66, hi: false },
-      { k: 'hybrid 12ep', v: 0.66, hi: true }
-    ], null, 0.7);
+      { k: 'early', v: 0.00, hi: false },
+      { k: 'late', v: 0.00, hi: false },
+      { k: 'hybrid', v: 1.00, hi: true }
+    ], null, 1.0);
   }
 
   /* ---------- plumbing ---------- */
@@ -282,7 +326,18 @@
     renderVariants();
   }
 
+  function wireLabels() {
+    var b = $('labTog');
+    if (!b) return;
+    b.addEventListener('click', function () {
+      state.labels = !state.labels;
+      b.setAttribute('aria-pressed', String(state.labels));
+      renderIcons();
+    });
+  }
+
   function init() {
+    wireLabels();
     buildStrip();
     var tabs = document.querySelectorAll('.imgtabs button');
     for (var i = 0; i < tabs.length; i++) {
