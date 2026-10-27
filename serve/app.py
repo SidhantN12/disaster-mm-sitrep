@@ -28,9 +28,11 @@ import torch
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from disaster_mm.builder import build_models, build_tokenizer_and_splits
+from disaster_mm.builder import build_models, build_synthetic_config
 from disaster_mm.data.dataset import DatasetConfig
 from disaster_mm.data.synthetic import generate_tile
+from disaster_mm.data.tokenizer import build_tokenizer
+from disaster_mm.data.vocab import Vocab
 from disaster_mm.models.fusion_variants import build_fusion_model
 from disaster_mm.utils import load_config, seed_everything
 
@@ -49,8 +51,20 @@ def load_models():
     device = torch.device(DEVICE)
     seed_everything(cfg.get('seed', 42))
 
-    vocab_path = os.path.join(MODEL_DIR, 'vocab.json')
-    tokenizer, syn_cfg, _splits = build_tokenizer_and_splits(cfg, vocab_path=vocab_path)
+    # Build the tokenizer directly rather than via build_tokenizer_and_splits,
+    # which generates the whole dataset to do it. At base scale that is 24,000
+    # tiles of 6x256x256 float32 - about 38 GB resident - purely to produce a
+    # tokenizer the service could have had for free. A serving process needs no
+    # splits at all.
+    text_variant = cfg['model']['text_variant']
+    if text_variant == 'tiny':
+        vocab_path = os.path.join(MODEL_DIR, 'vocab.json')
+        if not os.path.exists(vocab_path):
+            raise RuntimeError(f'missing {vocab_path} - the tiny tokenizer needs its vocab')
+        tokenizer = build_tokenizer('tiny', Vocab.load(vocab_path))
+    else:
+        tokenizer = build_tokenizer('bert')
+    syn_cfg = build_synthetic_config(cfg)
 
     part1, hybrid = build_models(cfg, tokenizer)
     p1_path = os.path.join(MODEL_DIR, 'part1_stage1.pt')
