@@ -142,6 +142,19 @@ def decode_image(b64: Optional[str]) -> np.ndarray:
     return arr
 
 
+@app.get('/')
+def root():
+    """Land somewhere useful rather than a 404."""
+    return {
+        'service': 'Multimodal SITREP inference',
+        'docs': '/docs',
+        'endpoints': {'GET /health': 'readiness and loaded variant', 'POST /sitrep': 'generate a report for one tile'},
+        'fusion': FUSION,
+        'note': 'Report relevance and needs detection carry real signal. '
+                'Damage class and structure counts do not - see results/fusion_results.json.',
+    }
+
+
 @app.get('/health')
 def health():
     ok = bool(M)
