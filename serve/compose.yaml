@@ -1,0 +1,18 @@
+services:
+  sitrep:
+    build:
+      context: ..
+      dockerfile: serve/Dockerfile
+    image: sitrep-serve:latest
+    ports:
+      - "8000:8000"
+    environment:
+      # hybrid is the variant whose writing responds to the reports
+      FUSION: hybrid
+      CONFIG: configs/base.yaml
+      DEVICE: cpu
+    volumes:
+      # Unpack base_fusion.tar.gz here first. Read-only: the service
+      # never writes to the weights.
+      - ../runs/base_fusion:/weights:ro
+    restart: unless-stopped
