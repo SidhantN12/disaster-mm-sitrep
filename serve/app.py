@@ -21,6 +21,7 @@ import io
 import os
 import time
 from contextlib import asynccontextmanager
+from typing import List, Optional
 
 import numpy as np
 import torch
@@ -104,14 +105,14 @@ class Report(BaseModel):
 
 
 class SitrepRequest(BaseModel):
-    reports: list[Report] = Field(default_factory=list)
-    image_npy_b64: str | None = Field(
+    reports: List[Report] = Field(default_factory=list)
+    image_npy_b64: Optional[str] = Field(
         None, description='base64 of a .npy holding a (6, 256, 256) float array. Omitted: a synthetic tile is generated.'
     )
     beam_size: int = 1
 
 
-def decode_image(b64: str | None) -> np.ndarray:
+def decode_image(b64: Optional[str]) -> np.ndarray:
     if b64 is None:
         rng = np.random.default_rng(0)
         return generate_tile(rng, M['syn_cfg']).image
